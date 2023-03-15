@@ -1,10 +1,28 @@
 {% extends "index.html" %}
 
 {% block predict %}
-    <div class="row">
-        <div class="col">
-            <h3>Hello!</h3>
-            <img src="data:image/jpeg;base64,{{ img_data }}" alt="output">
+    {% if is_dog and not is_human: %}
+        <h4>Hello Cute!</h4>
+        <img src="data:image/jpeg;base64,{{ img_data }}" alt="output" class="image mb-3">
+        <div class="alert alert-success" role="alert">
+            <p> you are </p>
+            <p class="glowText">{{ dog_class }}</p>
         </div>
-    </div>
+    {% endif %}
+    {% if is_human and not is_dog: %}
+        <h4>Hello Human!</h4>
+        <img src="data:image/jpeg;base64,{{ img_data }}" alt="output" class="image mb-3">
+        <div class="alert alert-success" role="alert">
+            <p> you look like </p>
+            <p class="glowText">{{ dog_class }}</p>
+        </div>
+    {% endif %}
+    {% if not is_dog and not is_human %}
+        {% if err: %}
+            <p class="alert alert-danger">{{err}}</p>
+        {% else %}
+            <img src="data:image/jpeg;base64,{{ img_data }}" alt="output" class="image mb-3">
+            <p class="alert alert-danger" role="alert">Please upload either dog or human image</p>
+        {% endif %}
+    {% endif %}
 {% endblock %}

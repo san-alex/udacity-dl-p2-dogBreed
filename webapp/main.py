@@ -5,12 +5,11 @@ from PIL import Image
 import base64
 from io import BytesIO
 
-allowed_exts = {'jpg', 'jpeg','png','JPG','JPEG','PNG'}
+import dlmodel
+
+allowed_exts = {'jpg', 'jpeg','JPG','JPEG'}
 def check_allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_exts
-
-def predict(model, img):
-    pass
 
 app = Flask(__name__)
 
@@ -36,7 +35,8 @@ def dldb():
         file = request.files['image']
         if file.filename == '':
             print('No file selected')
-            return redirect(request.url)
+            # return redirect(request.url)
+            return render_template('predict.html', img_data="", dog_class=None, is_dog=False, is_human=False, err='No file selected'), 200
         if file and check_allowed_file(file.filename):
             filename = secure_filename(file.filename)
             print(filename)
@@ -47,10 +47,18 @@ def dldb():
             encoded_string = base64.b64encode(image_bytes).decode()
 
             # importing model
+            res = dlmodel.run_app(img)
+            is_dog = res['is_dog']
+            is_human = res['is_human']
+            if res['dog_class']:
+                dog_class = res['dog_class']
+            else:
+                dog_class = None
                
-        return render_template('predict.html', img_data=encoded_string), 200
+            return render_template('predict.html', img_data=encoded_string, dog_class=dog_class, is_dog=is_dog, is_human=is_human, err=None), 200
+        return render_template('predict.html', img_data="", dog_class=None, is_dog=False, is_human=False, err='Choose correct image format'), 200
     else:
-        return render_template('predict.html', img_data=""), 200
+        return render_template('predict.html', img_data="", dog_class=None, is_dog=False, is_human=False, err='method not accepted'), 200
 
 
 if __name__ == '__main__':
